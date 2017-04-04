@@ -1,0 +1,31 @@
+library(ggplot2)
+library(data.table)
+library(dplyr)
+
+pv$MontoItem <- as.numeric(as.character(pv$MontoItem))
+pvA <- aggregate(pv[,c("MontoItem")], by=list(pv$MontoItem), "sum")
+
+
+pvA <- pvA[order(pvA$x, decreasing = TRUE),]
+
+pvA["Porcentaje"] <- (pvA$x/sum(pvA$x))*100
+pvA["SumaAcumulada"] <- cumsum(pvA$x)
+pvA["PorcentajeAcumulado"] <- (pvA$SumaAcumulada/sum(pvA$x))*100
+
+pvA<- pvA[1:50,]
+ggplot(pvA ,aes(x = reorder(Group.1,PorcentajeAcumulado), y=PorcentajeAcumulado )) +
+  geom_point()+
+  labs(title="Tommy Top 50 Precios por Monto", x="Precio", y="Porcentaje de Venta")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_y_continuous(breaks = seq(0, max(pvA$PorcentajeAcumulado), by = 10))
+  #scale_y_continuous(breaks = seq(0, max(pvA$PorcentajeAcumulado), by = 10))+
+  #scale_x_continuous(breaks = seq(0, length(pvA$Group.1), by = 100))
+  #geom_vline(xintercept = 3468, colour="red")+
+  #geom_hline(yintercept = 90, colour="red")
+  #annotate("text", x = 6000, y = 70, label = "", size=7)
+
+#ggplot(pvA ,aes(x = reorder(Group.1,-Porcentaje), y=Porcentaje )) +
+#  geom_bar(stat = "identity")+
+#  labs(title="", x="ID_TIENDA", y="Porcentaje de Venta")+
+#  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=5))+
+#  scale_y_continuous(breaks = seq(0, max(pvA$Porcentaje), by = 10))
